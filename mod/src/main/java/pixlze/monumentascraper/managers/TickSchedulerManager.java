@@ -1,0 +1,48 @@
+package pixlze.monumentascraper.managers;
+
+
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.world.ClientWorld;
+import pixlze.monumentascraper.managers.type.Manager;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class TickSchedulerManager extends Manager {
+    private final Map<Runnable, Integer> tasks = new ConcurrentHashMap<>();
+
+
+    public TickSchedulerManager() {
+        super(List.of());
+    }
+
+    @Override
+    public void init() {
+        ClientTickEvents.START_WORLD_TICK.register(this::onTick);
+    }
+
+
+    public void scheduleLater(Runnable runnable, int ticksDelay) {
+        tasks.put(runnable, ticksDelay);
+    }
+
+    public void scheduleNextTick(Runnable runnable) {
+        tasks.put(runnable, 0);
+    }
+
+    public void onTick(ClientWorld world) {
+        Iterator<Map.Entry<Runnable, Integer>> it = tasks.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Runnable, Integer> entry = it.next();
+            int ticksLeft = entry.getValue();
+            if (ticksLeft == 0) {
+                entry.getKey().run();
+                it.remove();
+            } else {
+                entry.setValue(ticksLeft - 1);
+            }
+        }
+    }
+}

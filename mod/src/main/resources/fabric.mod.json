@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "monumenta-scraper",
+	"version": "${version}",
+	"name": "Monumenta Scraper",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"pixlze"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/monumenta-scraper/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"pixlze.monumentascraper.MonumentaScraper"
+		]
+	},
+	"mixins": [
+		"monumenta-scraper.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}

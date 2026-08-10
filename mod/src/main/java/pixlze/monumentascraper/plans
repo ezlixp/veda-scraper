@@ -1,0 +1,4 @@
+ - connection manager for posting connection stuff and reconnecting
+ - error handling for kicked in leaderboardscraper.java
+    - have a disconnected listener with a re run last command on connected listener
+    - make every command wait like 3 seconds or smth using tick
