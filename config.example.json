@@ -1,0 +1,12 @@
+[
+    {
+        "leaderboardName": "Zenith Clears",
+        "leaderboardId": "Zenith",
+        "pages": 5
+    },
+    {
+        "leaderboardName": "Alchemy Lab Clears",
+        "leaderboardId": "OldLab",
+        "pages": 6
+    }
+]

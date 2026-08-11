@@ -1,0 +1,16 @@
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: veda-scraper
+    environment:
+      - VALIDATION_KEY=password
+    volumes:
+      - hmc_run:/root/.minecraft
+      - hmc_auth:/minecraft/HeadlessMC/auth
+    restart: on-failure
+
+volumes:
+  hmc_run:
+  hmc_auth:
