@@ -50,6 +50,7 @@ public class ScraperManager extends Manager {
         ClientPlayConnectionEvents.DISCONNECT.register(this::onDisconnected);
         MonumentaChatMessage.EVENT.register(this::onChatMessageReceived);
 
+        // TODO: take configs from a get request
         JsonArray configObject;
         try {
             configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
@@ -113,7 +114,9 @@ public class ScraperManager extends Manager {
         if (allDone) return;
         allDone = true;
         Managers.Json.saveJsonAsFile(dataFile, dataObject);
-        ScraperEvents.ALL_DONE.invoker().allDone();
+        Managers.Api.post("snapshot", dataObject).whenComplete((res, exception) -> {
+            ScraperEvents.ALL_DONE.invoker().allDone();
+        });
     }
 
     public void onConnected(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {

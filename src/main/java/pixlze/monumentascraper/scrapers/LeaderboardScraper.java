@@ -35,7 +35,7 @@ public class LeaderboardScraper extends Scraper {
         this.pages = pages;
         this.currentPage = 1;
         this.data = new JsonObject();
-        this.data.addProperty("leaderboardName", leaderboardName.toLowerCase(Locale.ROOT).replaceAll(" ", "-"));
+        this.data.addProperty("leaderboardName", leaderboardId);
         this.rankings = new JsonArray();
         this.data.add("entries", this.rankings);
         this.command = "leaderboard @s " + leaderboardId + " true ";
