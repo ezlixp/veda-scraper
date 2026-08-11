@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e
 
-if [ -n "$VALIDATION_KEY" ]; then
+if [[ -n "$VALIDATION_KEY" && -n "$BASE_URL" ]]; then
     mkdir -p /root/.minecraft/monumenta-scraper/config
-    echo "{\"validationKey\":\"$VALIDATION_KEY\"}" > /root/.minecraft/monumenta-scraper/config/auth.json
+    echo "{\"validationKey\":\"$VALIDATION_KEY\", \"baseUrl\":\"$BASE_URL\"}" > /root/.minecraft/monumenta-scraper/config/api.json
+else
+    echo "env error"
+    exit 1
 fi
 
 if [ "$1" = "--login" ]; then
