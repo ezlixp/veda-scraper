@@ -1,1 +1,1 @@
-docker compose run --rm hmc java -jar headlessmc-launcher.jar # log in, which will then be persisted through volumes
+docker compose run --rm scraper --login
