@@ -50,6 +50,7 @@ public class ApiManager extends Manager {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + path))
                 .header("Authorization", "bearer " + validationKey)
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()));
         if (MonumentaScraper.isDevelopment())
             builder.version(HttpClient.Version.HTTP_1_1);

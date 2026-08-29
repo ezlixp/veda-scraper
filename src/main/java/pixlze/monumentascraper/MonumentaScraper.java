@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
 import pixlze.monumentascraper.managers.Managers;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
@@ -16,12 +17,16 @@ public class MonumentaScraper implements ClientModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    private static boolean development;
+
     public static File getModStorageDir(String dirName) {
         return new File(MOD_STORAGE_ROOT, dirName);
     }
 
     @Override
     public void onInitializeClient() {
+        development = FabricLoader.getInstance().isDevelopmentEnvironment();
+
         Managers.init();
         Managers.Tick.scheduleLater(() -> {
             MonumentaScraper.LOGGER.info("Scrapers starting");
@@ -32,7 +37,7 @@ public class MonumentaScraper implements ClientModInitializer {
     }
 
     public static boolean isDevelopment() {
-        return false;
+        return development;
     }
 
     public static Identifier id(String path) {
