@@ -5,13 +5,19 @@ services:
       dockerfile: Dockerfile
     container_name: veda-scraper
     environment:
-      - VALIDATION_KEY=password
-      - BASE_URL=http://baseurl/
+      - VALIDATION_KEY=test-secret
+      - BASE_URL=http://backend:8000/
     volumes:
       - hmc_run:/root/.minecraft
       - hmc_auth:/minecraft/HeadlessMC/auth
+    networks:
+      - shared
     restart: no
 
 volumes:
   hmc_run:
   hmc_auth:
+
+networks:
+  shared:
+    external: true

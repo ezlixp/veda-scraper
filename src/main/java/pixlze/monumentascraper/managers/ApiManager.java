@@ -1,19 +1,17 @@
 package pixlze.monumentascraper.managers;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import pixlze.monumentascraper.MonumentaScraper;
-import pixlze.monumentascraper.managers.type.Manager;
-
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import com.google.gson.JsonObject;
+
+import pixlze.monumentascraper.MonumentaScraper;
+import pixlze.monumentascraper.managers.type.Manager;
 
 public class ApiManager extends Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getModStorageDir("config");
@@ -53,6 +51,9 @@ public class ApiManager extends Manager {
                 .uri(URI.create(baseUrl + path))
                 .header("Authorization", "bearer " + validationKey)
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()));
+        if (MonumentaScraper.isDevelopment())
+            builder.version(HttpClient.Version.HTTP_1_1);
+
         return httpClient.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 }

@@ -1,13 +1,14 @@
 package pixlze.monumentascraper;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.util.Identifier;
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.util.Identifier;
 import pixlze.monumentascraper.managers.Managers;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
-
-import java.io.File;
 
 public class MonumentaScraper implements ClientModInitializer {
     public static final String MOD_ID = "monumenta-scraper";
@@ -28,6 +29,10 @@ public class MonumentaScraper implements ClientModInitializer {
         }, 10);
         ScraperEvents.ALL_DONE.register(this::close);
 
+    }
+
+    public static boolean isDevelopment() {
+        return false;
     }
 
     public static Identifier id(String path) {

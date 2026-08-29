@@ -1,8 +1,13 @@
 package pixlze.monumentascraper.managers;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -14,10 +19,6 @@ import pixlze.monumentascraper.mc.event.MonumentaChatMessage;
 import pixlze.monumentascraper.scrapers.LeaderboardScraper;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
 import pixlze.monumentascraper.scrapers.type.Scraper;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ScraperManager extends Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getModStorageDir("config");
@@ -67,15 +68,15 @@ public class ScraperManager extends Manager {
             try {
                 JsonObject scraperObject = scraper.getAsJsonObject();
                 registerScraper(new LeaderboardScraper(scraperObject.get("leaderboardName")
-                        .getAsString(), scraperObject.get("leaderboardId").getAsString(), scraperObject.get("pages")
-                        .getAsInt()));
+                        .getAsString(), scraperObject.get("leaderboardId").getAsString(),
+                        scraperObject.get("pages")
+                                .getAsInt()));
             } catch (Exception e) {
                 MonumentaScraper.LOGGER.warn("skipping malformed scraper {} for reason {}", scraper, e.getMessage());
             }
         }
 
     }
-
 
     private void registerScraper(Scraper scraper) {
         ++uncompletedScrapers;
@@ -101,7 +102,8 @@ public class ScraperManager extends Manager {
 
     private void writeData(String title, JsonObject data) {
         --uncompletedScrapers;
-        // title should be snapshots for things added to snapshots json array, which is everything right now
+        // title should be snapshots for things added to snapshots json array, which is
+        // everything right now
         snapshots.add(data);
         if (uncompletedScrapers == 0) {
             saveFile();
@@ -111,25 +113,31 @@ public class ScraperManager extends Manager {
     }
 
     private void saveFile() {
-        if (allDone) return;
+        if (allDone)
+            return;
         allDone = true;
         Managers.Json.saveJsonAsFile(dataFile, dataObject);
-        Managers.Api.post("snapshot", dataObject).whenComplete((res, exception) -> {
+        Managers.Api.post("v1/api/leaderboards/snapshot", dataObject).whenComplete((res, exception) -> {
+            MonumentaScraper.LOGGER.info("stuff: {} {}", res.body(), exception);
             ScraperEvents.ALL_DONE.invoker().allDone();
         });
     }
 
     public void onConnected(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
-        if (!firstConnection && currentScraper != null) {currentScraper.onConnected();}
+        if (!firstConnection && currentScraper != null) {
+            currentScraper.onConnected();
+        }
         firstConnection = false;
     }
 
     private void onDisconnected(ClientPlayNetworkHandler handler, MinecraftClient client) {
-        if (currentScraper != null) currentScraper.onDisconnected();
+        if (currentScraper != null)
+            currentScraper.onDisconnected();
     }
 
     private void onChatMessageReceived(Text message) {
-        if (currentScraper != null) currentScraper.onChatMessageReceived(message);
+        if (currentScraper != null)
+            currentScraper.onChatMessageReceived(message);
     }
 
 }
