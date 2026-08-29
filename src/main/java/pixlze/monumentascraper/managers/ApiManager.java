@@ -20,6 +20,7 @@ public class ApiManager extends Manager {
 
     private final File apiFile;
     private String baseUrl;
+    private final String extra = "v1/api/";
     private String validationKey;
 
     public ApiManager() {
@@ -40,7 +41,7 @@ public class ApiManager extends Manager {
 
     public CompletableFuture<HttpResponse<String>> get(String path) {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + path))
+                .uri(URI.create(baseUrl + extra + path))
                 .header("Authorization", "bearer " + validationKey)
                 .GET();
         return httpClient.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
@@ -48,7 +49,7 @@ public class ApiManager extends Manager {
 
     public CompletableFuture<HttpResponse<String>> post(String path, JsonObject body) {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl + path))
+                .uri(URI.create(baseUrl + extra + path))
                 .header("Authorization", "bearer " + validationKey)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()));

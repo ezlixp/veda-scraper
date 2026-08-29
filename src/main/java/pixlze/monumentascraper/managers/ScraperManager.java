@@ -1,13 +1,8 @@
 package pixlze.monumentascraper.managers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -19,6 +14,11 @@ import pixlze.monumentascraper.mc.event.MonumentaChatMessage;
 import pixlze.monumentascraper.scrapers.LeaderboardScraper;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
 import pixlze.monumentascraper.scrapers.type.Scraper;
+
+import java.io.File;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScraperManager extends Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getModStorageDir("config");
@@ -51,10 +51,13 @@ public class ScraperManager extends Manager {
         ClientPlayConnectionEvents.DISCONNECT.register(this::onDisconnected);
         MonumentaChatMessage.EVENT.register(this::onChatMessageReceived);
 
-        // TODO: take configs from a get request
         JsonArray configObject;
         try {
-            configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
+//            configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
+            HttpResponse<String> res = Managers.Api.get("config").get();
+            JsonObject body = Managers.Json.toJsonObject(res.body());
+            configObject = body.get("config").getAsJsonArray();
+            MonumentaScraper.LOGGER.info("{}", configObject);
         } catch (Exception e) {
             configObject = new JsonArray();
             JsonObject base = new JsonObject();
@@ -117,7 +120,7 @@ public class ScraperManager extends Manager {
             return;
         allDone = true;
         Managers.Json.saveJsonAsFile(dataFile, dataObject);
-        Managers.Api.post("v1/api/leaderboards/snapshot", dataObject).whenComplete((res, exception) -> {
+        Managers.Api.post("leaderboards/snapshot", dataObject).whenComplete((res, exception) -> {
             MonumentaScraper.LOGGER.info("stuff: {} {}", res.body(), exception);
             ScraperEvents.ALL_DONE.invoker().allDone();
         });
