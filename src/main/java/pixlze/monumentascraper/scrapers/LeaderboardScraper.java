@@ -13,7 +13,6 @@ import pixlze.monumentascraper.utils.text.type.TextParseOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,11 +81,17 @@ public class LeaderboardScraper extends Scraper {
         Matcher rpMatcher = ROW_PATTERN.matcher(m);
         Matcher leaderboardEndMatcher = LEADERBOARD_END_PATTERN.matcher(m);
         if (rpMatcher.find()) {
-            JsonObject entry = new JsonObject();
-            entry.addProperty("rank", Integer.parseInt(rpMatcher.group("rank")));
-            entry.addProperty("playerName", rpMatcher.group("username"));
-            entry.addProperty("value", Integer.parseInt(rpMatcher.group("value")));
-            pageRankings.add(entry);
+            if (message.getLiteralString() == null && message.getSiblings().size() == 3) {
+                JsonObject entry = new JsonObject();
+                List<Text> siblings = message.getSiblings();
+                entry.addProperty("rank", Integer.parseInt(siblings.get(0).getString().strip()));
+                entry.addProperty("playerName", siblings.get(1).getString().strip());
+                entry.addProperty("value", Integer.parseInt(siblings.get(2).getString().strip()));
+                pageRankings.add(entry);
+            } else {
+                MonumentaScraper.LOGGER.warn("unable to parse triplet from: {}, {}", message, TextUtils.parseStyled(message, TextParseOptions.DEFAULT));
+            }
+
         } else if (leaderboardEndMatcher.find()) {
             for (JsonObject ranking : pageRankings) {
                 rankings.add(ranking);
