@@ -39,20 +39,10 @@ public class JsonManager extends Manager {
     public boolean saveJsonAsFile(File file, JsonElement json) {
         FileUtils.mkdir(file.getParentFile());
         try (FileWriter writer = new FileWriter(file)) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            JsonWriter jsonWriter = new JsonWriter(writer);
-            jsonWriter.jsonValue(config.toString());
-=======
-            GSON.toJson(json, writer);
->>>>>>> 8db8c0d (feat: add config file)
-        } catch (Exception e) {
-=======
             GSON.toJson(json, writer);
         } catch (IOException e) {
             MonumentaScraper.LOGGER.error("json write error: {} {}", e, e.getMessage());
 
->>>>>>> 5eeba4c (fix: fix json writer never closing)
             return false;
         }
 
