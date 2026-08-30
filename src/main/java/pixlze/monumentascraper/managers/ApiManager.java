@@ -14,7 +14,7 @@ import pixlze.monumentascraper.MonumentaScraper;
 import pixlze.monumentascraper.managers.type.Manager;
 
 public class ApiManager extends Manager {
-    private static final File CONFIG_DIR = MonumentaScraper.getModStorageDir("config");
+    private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -53,7 +53,7 @@ public class ApiManager extends Manager {
                 .header("Authorization", "bearer " + validationKey)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()));
-        if (MonumentaScraper.isDevelopment())
+        if (MonumentaScraper.CONFIG.isDevelopmentEnvironment())
             builder.version(HttpClient.Version.HTTP_1_1);
 
         return httpClient.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());

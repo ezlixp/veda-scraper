@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScraperManager extends Manager {
-    private static final File CONFIG_DIR = MonumentaScraper.getModStorageDir("config");
-    private static final File DATA_DIR = MonumentaScraper.getModStorageDir("data");
+    private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
+    private static final File DATA_DIR = MonumentaScraper.getStorageDirectory("data");
 
     private int uncompletedScrapers = 0;
     private final List<Scraper> scrapers = new ArrayList<>();
@@ -53,7 +53,7 @@ public class ScraperManager extends Manager {
 
         JsonArray configObject;
         try {
-//            configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
+            // configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
             HttpResponse<String> res = Managers.Api.get("config").get();
             JsonObject body = Managers.Json.toJsonObject(res.body());
             configObject = body.get("config").getAsJsonArray();
