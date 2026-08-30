@@ -2,7 +2,6 @@ package pixlze.monumentascraper.managers;
 
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonWriter;
 import pixlze.monumentascraper.MonumentaScraper;
 import pixlze.monumentascraper.managers.type.Manager;
 import pixlze.monumentascraper.utils.FileUtils;
@@ -29,19 +28,28 @@ public class JsonManager extends Manager {
         JsonElement element;
         try (FileReader reader = new FileReader(file)) {
             element = JsonParser.parseReader(reader);
+
             return element;
         } catch (IOException e) {
             MonumentaScraper.LOGGER.error("json load error: {} {}", e, e.getMessage());
         }
+
         return null;
     }
 
     public boolean saveJsonAsFile(File file, JsonElement config) {
         FileUtils.mkdir(file.getParentFile());
         try (FileWriter writer = new FileWriter(file)) {
+<<<<<<< HEAD
             JsonWriter jsonWriter = new JsonWriter(writer);
             jsonWriter.jsonValue(config.toString());
         } catch (Exception e) {
+=======
+            GSON.toJson(json, writer);
+        } catch (IOException e) {
+            MonumentaScraper.LOGGER.error("json write error: {} {}", e, e.getMessage());
+
+>>>>>>> 5eeba4c (fix: fix json writer never closing)
             return false;
         }
         return true;
