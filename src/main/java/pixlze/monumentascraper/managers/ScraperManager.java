@@ -54,7 +54,7 @@ public class ScraperManager extends Manager {
         JsonArray configObject;
         try {
             // configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
-            HttpResponse<String> res = Managers.Api.get("config/").get();
+            HttpResponse<String> res = Managers.Api.get("config").get();
             JsonObject body = Managers.Json.toJsonObject(res.body());
             configObject = body.get("config").getAsJsonArray();
             MonumentaScraper.LOGGER.info("{}", configObject);
@@ -120,7 +120,7 @@ public class ScraperManager extends Manager {
             return;
         allDone = true;
         Managers.Json.saveJsonAsFile(dataFile, dataObject);
-        Managers.Api.post("leaderboards/snapshot/", dataObject).whenComplete((res, exception) -> {
+        Managers.Api.post("leaderboards/snapshot", dataObject).whenComplete((res, exception) -> {
             MonumentaScraper.LOGGER.info("stuff: {} {}", res.body(), exception);
             ScraperEvents.ALL_DONE.invoker().allDone();
         });
