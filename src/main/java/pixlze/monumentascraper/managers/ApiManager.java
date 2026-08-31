@@ -20,7 +20,7 @@ public class ApiManager extends Manager {
 
     private final File apiFile;
     private String baseUrl;
-    private final String extra = "v1/api/";
+    private final String extra = "api/v1/";
     private String validationKey;
 
     public ApiManager() {
