@@ -73,7 +73,7 @@ public class ScraperManager extends Manager {
                 JsonObject scraperObject = scraper.getAsJsonObject();
                 registerScraper(new LeaderboardScraper(scraperObject.get("leaderboardName")
                         .getAsString(), scraperObject.get("leaderboardId").getAsString(),
-                        50));
+                        25));
             } catch (Exception e) {
                 MonumentaScraper.LOGGER.warn("skipping malformed scraper {} for reason {}", scraper, e.getMessage());
             }
