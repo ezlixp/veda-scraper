@@ -1,8 +1,14 @@
 package pixlze.monumentascraper.managers;
 
+import java.io.File;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -14,11 +20,6 @@ import pixlze.monumentascraper.mc.event.MonumentaChatMessage;
 import pixlze.monumentascraper.scrapers.LeaderboardScraper;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
 import pixlze.monumentascraper.scrapers.type.Scraper;
-
-import java.io.File;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ScraperManager extends Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
@@ -54,9 +55,9 @@ public class ScraperManager extends Manager {
         JsonArray configObject;
         try {
             // configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
-            HttpResponse<String> res = Managers.Api.get("config").get();
+            HttpResponse<String> res = Managers.Api.get("leaderboards").get();
             JsonObject body = Managers.Json.toJsonObject(res.body());
-            configObject = body.get("config").getAsJsonArray();
+            configObject = body.get("leaderboards").getAsJsonArray();
             MonumentaScraper.LOGGER.info("{}", configObject);
         } catch (Exception e) {
             configObject = new JsonArray();
@@ -72,8 +73,7 @@ public class ScraperManager extends Manager {
                 JsonObject scraperObject = scraper.getAsJsonObject();
                 registerScraper(new LeaderboardScraper(scraperObject.get("leaderboardName")
                         .getAsString(), scraperObject.get("leaderboardId").getAsString(),
-                        scraperObject.get("pages")
-                                .getAsInt()));
+                        50));
             } catch (Exception e) {
                 MonumentaScraper.LOGGER.warn("skipping malformed scraper {} for reason {}", scraper, e.getMessage());
             }

@@ -1,7 +1,13 @@
 package pixlze.monumentascraper.scrapers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import net.minecraft.text.Text;
 import pixlze.monumentascraper.MonumentaScraper;
 import pixlze.monumentascraper.managers.Managers;
@@ -11,14 +17,11 @@ import pixlze.monumentascraper.utils.McUtils;
 import pixlze.monumentascraper.utils.text.TextUtils;
 import pixlze.monumentascraper.utils.text.type.TextParseOptions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class LeaderboardScraper extends Scraper {
-    private static final Pattern ROW_PATTERN = Pattern.compile("^(§[^9]§l)(?<rank>\\d+)§[^9](§l\\s+(§[^9])?)?\\s*((§[^9])?§l)(?<username>\\S+?)§[^9](§l\\s*§[^9])?\\s*(§[^9]§l)(?<value>\\d+)$");
-    private static final Pattern LEADERBOARD_END_PATTERN = Pattern.compile("^§9§l--==-- +§.§l\\[ < ] *§e§l +Page: +§e§l(?<page>\\d+)/(?<maxPages>\\d+)§.§l +\\[ > ]§9§l *--==--$");
+    private static final Pattern ROW_PATTERN = Pattern.compile(
+            "^(§[^9]§l)(?<rank>\\d+)§[^9](§l\\s+(§[^9])?)?\\s*((§[^9])?§l)(?<username>\\S+?)§[^9](§l\\s*§[^9])?\\s*(§[^9]§l)(?<value>\\d+)$");
+    private static final Pattern LEADERBOARD_END_PATTERN = Pattern.compile(
+            "^§9§l--==-- +§.§l\\[ < ] *§e§l +Page: +§e§l(?<page>\\d+)/(?<maxPages>\\d+)§.§l +\\[ > ]§9§l *--==--$");
 
     private final int pages;
     private int currentPage;
@@ -75,7 +78,8 @@ public class LeaderboardScraper extends Scraper {
 
     @Override
     public synchronized void onChatMessageReceived(Text message) {
-        if (this.state != ScraperState.LISTENING) return;
+        if (this.state != ScraperState.LISTENING)
+            return;
 
         String m = TextUtils.parseStyled(message, TextParseOptions.DEFAULT);
         Matcher rpMatcher = ROW_PATTERN.matcher(m);
@@ -89,7 +93,8 @@ public class LeaderboardScraper extends Scraper {
                 entry.addProperty("value", Integer.parseInt(siblings.get(2).getString().strip()));
                 pageRankings.add(entry);
             } else {
-                MonumentaScraper.LOGGER.warn("unable to parse triplet from: {}, {}", message, TextUtils.parseStyled(message, TextParseOptions.DEFAULT));
+                MonumentaScraper.LOGGER.warn("unable to parse triplet from: {}, {}", message,
+                        TextUtils.parseStyled(message, TextParseOptions.DEFAULT));
             }
 
         } else if (leaderboardEndMatcher.find()) {
@@ -103,7 +108,8 @@ public class LeaderboardScraper extends Scraper {
 
     @Override
     public void onConnected() {
-        if (this.currentPage > this.pages) return;
+        if (this.currentPage > this.pages)
+            return;
         Managers.Tick.scheduleLater(this::fireCommand, 10);
     }
 
