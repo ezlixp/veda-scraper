@@ -1,17 +1,19 @@
 package pixlze.monumentascraper.managers;
 
 import com.google.gson.*;
-import pixlze.monumentascraper.MonumentaScraper;
+import pixlze.monumentascraper.core.SafeExecutor;
 import pixlze.monumentascraper.managers.type.Manager;
 import pixlze.monumentascraper.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 
 public class JsonManager implements Manager {
-    public final Gson GSON = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().serializeNulls()
+    public final Gson GSON = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .setPrettyPrinting()
+            .serializeNulls()
             .create();
 
     public JsonManager() {
@@ -21,29 +23,20 @@ public class JsonManager implements Manager {
     }
 
     public JsonElement loadJsonFromFile(File file) {
-        JsonElement element;
-        try (FileReader reader = new FileReader(file)) {
-            element = JsonParser.parseReader(reader);
-
-            return element;
-        } catch (IOException e) {
-            MonumentaScraper.LOGGER.error("json load error: {} {}", e, e.getMessage());
-        }
-
-        return null;
+        return SafeExecutor.run(() -> {
+            try (FileReader reader = new FileReader(file)) {
+                return JsonParser.parseReader(reader);
+            }
+        }, String.format("Error loading JSON"));
     }
 
-    public boolean saveJsonAsFile(File file, JsonElement json) {
-        FileUtils.mkdir(file.getParentFile());
-        try (FileWriter writer = new FileWriter(file)) {
-            GSON.toJson(json, writer);
-        } catch (IOException e) {
-            MonumentaScraper.LOGGER.error("json write error: {} {}", e, e.getMessage());
-
-            return false;
-        }
-
-        return true;
+    public void saveJsonAsFile(File file, JsonElement json) {
+        SafeExecutor.run(() -> {
+            FileUtils.mkdir(file.getParentFile());
+            try (FileWriter writer = new FileWriter(file)) {
+                GSON.toJson(json, writer);
+            }
+        }, "Error writing JSON");
     }
 
     public JsonElement toJsonElement(String convert) {
@@ -55,9 +48,9 @@ public class JsonManager implements Manager {
     }
 
     public String escapeUnsafeJsonChars(String input) {
-        if (input == null) {
+        if (input == null)
             return null;
-        }
+
         String out = input.replace("\\", "\\\\");
         out = out.replace("\"", "\\\"");
         out = out.replace("\n", "\\n")
@@ -65,6 +58,7 @@ public class JsonManager implements Manager {
                 .replace("\t", "\\t")
                 .replace("\b", "\\b")
                 .replace("\f", "\\f");
+
         return out;
     }
 }

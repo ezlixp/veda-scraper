@@ -40,6 +40,7 @@ public class ApiManager implements Manager {
                 .uri(URI.create(baseUrl + extra + path))
                 .header("Authorization", "bearer " + validationKey)
                 .GET();
+
         return httpClient.sendAsync(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
@@ -49,6 +50,7 @@ public class ApiManager implements Manager {
                 .header("Authorization", "bearer " + validationKey)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()));
+
         if (MonumentaScraper.CONFIG.isDevelopmentEnvironment())
             builder.version(HttpClient.Version.HTTP_1_1);
 

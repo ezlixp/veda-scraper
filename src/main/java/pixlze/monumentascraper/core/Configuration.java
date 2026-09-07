@@ -1,4 +1,4 @@
-package pixlze.monumentascraper.config;
+package pixlze.monumentascraper.core;
 
 import net.fabricmc.loader.api.FabricLoader;
 
