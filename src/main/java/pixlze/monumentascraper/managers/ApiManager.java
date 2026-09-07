@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
@@ -14,7 +13,7 @@ import pixlze.monumentascraper.MonumentaScraper;
 import pixlze.monumentascraper.core.SafeExecutor;
 import pixlze.monumentascraper.managers.type.Manager;
 
-public class ApiManager extends Manager {
+public class ApiManager implements Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -25,11 +24,9 @@ public class ApiManager extends Manager {
     private String validationKey;
 
     public ApiManager() {
-        super(List.of());
         apiFile = new File(CONFIG_DIR, "api.json");
     }
 
-    @Override
     public void init() {
         SafeExecutor.run(() -> {
             JsonObject config = Managers.Json.loadJsonFromFile(apiFile).getAsJsonObject();

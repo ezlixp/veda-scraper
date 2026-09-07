@@ -21,7 +21,7 @@ import pixlze.monumentascraper.scrapers.LeaderboardScraper;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
 import pixlze.monumentascraper.scrapers.type.Scraper;
 
-public class ScraperManager extends Manager {
+public class ScraperManager implements Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
     private static final File DATA_DIR = MonumentaScraper.getStorageDirectory("data");
 
@@ -37,7 +37,6 @@ public class ScraperManager extends Manager {
     private final JsonArray snapshots;
 
     public ScraperManager() {
-        super(List.of());
         dataFile = new File(DATA_DIR, "data.json");
         configFile = new File(CONFIG_DIR, "config.json");
         dataObject = new JsonObject();
@@ -45,7 +44,6 @@ public class ScraperManager extends Manager {
         dataObject.add("snapshots", snapshots);
     }
 
-    @Override
     public void init() {
         ScraperEvents.DONE.register(this::writeData);
         ClientPlayConnectionEvents.JOIN.register(this::onConnected);
@@ -54,7 +52,6 @@ public class ScraperManager extends Manager {
 
         JsonArray configObject;
         try {
-            // configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
             HttpResponse<String> res = Managers.Api.get("leaderboards").get();
             JsonObject body = Managers.Json.toJsonObject(res.body());
             configObject = body.get("leaderboards").getAsJsonArray();
