@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.JsonObject;
 
 import pixlze.monumentascraper.MonumentaScraper;
+import pixlze.monumentascraper.core.SafeExecutor;
 import pixlze.monumentascraper.managers.type.Manager;
 
 public class ApiManager extends Manager {
@@ -30,13 +31,11 @@ public class ApiManager extends Manager {
 
     @Override
     public void init() {
-        try {
+        SafeExecutor.run(() -> {
             JsonObject config = Managers.Json.loadJsonFromFile(apiFile).getAsJsonObject();
             baseUrl = config.get("baseUrl").getAsString();
             validationKey = config.get("validationKey").getAsString();
-        } catch (Exception e) {
-            MonumentaScraper.LOGGER.warn("couldn't get api stuffs");
-        }
+        }, "Couldn't get API config");
     }
 
     public CompletableFuture<HttpResponse<String>> get(String path) {
