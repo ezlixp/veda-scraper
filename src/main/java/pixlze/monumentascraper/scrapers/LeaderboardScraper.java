@@ -110,7 +110,7 @@ public class LeaderboardScraper extends Scraper {
     public void onConnected() {
         if (this.currentPage > this.pages)
             return;
-        Managers.Tick.scheduleLater(this::fireCommand, 10);
+        Managers.Tick.scheduleLater(this::fireCommand, 20);
     }
 
     @Override
