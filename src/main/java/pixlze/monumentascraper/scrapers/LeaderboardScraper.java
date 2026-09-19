@@ -56,6 +56,7 @@ public class LeaderboardScraper extends Scraper {
         }
         try {
             pageRankings.clear();
+            MonumentaScraper.LOGGER.info("firing: {} {}", command, currentPage);
             McUtils.mc().getNetworkHandler().sendChatCommand(command + currentPage);
             this.setState(ScraperState.LISTENING);
         } catch (Exception e) {
@@ -78,8 +79,10 @@ public class LeaderboardScraper extends Scraper {
 
     @Override
     public synchronized void onChatMessageReceived(Text message) {
-        if (this.state != ScraperState.LISTENING)
+        if (this.state != ScraperState.LISTENING) {
+            MonumentaScraper.LOGGER.info("skipping");
             return;
+        }
 
         String m = TextUtils.parseStyled(message, TextParseOptions.DEFAULT);
         Matcher rpMatcher = ROW_PATTERN.matcher(m);
@@ -110,12 +113,16 @@ public class LeaderboardScraper extends Scraper {
     public void onConnected() {
         if (this.currentPage > this.pages)
             return;
-        this.setState(ScraperState.READY);
-        Managers.Tick.scheduleLater(this::fireCommand, 10);
+        Managers.Tick.scheduleLater(() -> {
+            MonumentaScraper.LOGGER.warn("scraper reconnected, page {}", this.currentPage);
+            this.setState(ScraperState.READY);
+            this.fireCommand();
+        }, 15);
     }
 
     @Override
     public void onDisconnected() {
+        MonumentaScraper.LOGGER.warn("scraper disconnected");
         this.setState(ScraperState.DISCONNECTED);
     }
 }
