@@ -59,9 +59,9 @@ public class ScraperManager implements Manager {
         } catch (Exception e) {
             configObject = new JsonArray();
             JsonObject base = new JsonObject();
-            base.addProperty("leaderboardName", "Zenith Clears");
+            base.addProperty("leaderboardName", "Celestial Zenith");
             base.addProperty("leaderboardId", "Zenith");
-            base.addProperty("pages", 5);
+            base.addProperty("pages", 25);
             configObject.add(base);
         }
         Managers.Json.saveJsonAsFile(configFile, configObject);

@@ -8,8 +8,8 @@ services:
     volumes:
       - hmc_run:/root/.minecraft
       - hmc_auth:/minecraft/HeadlessMC/auth
-    networks:
-      - shared
+    # networks:
+    # - shared
     restart: no
 
 volumes:

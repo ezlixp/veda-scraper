@@ -4,5 +4,6 @@ public enum ScraperState {
     LISTENING,
     WAITING,
     READY,
-    DONE
+    DONE,
+    DISCONNECTED
 }
