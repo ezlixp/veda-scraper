@@ -110,12 +110,11 @@ public class LeaderboardScraper extends Scraper {
     public void onConnected() {
         if (this.currentPage > this.pages)
             return;
-        Managers.Tick.scheduleLater(this::fireCommand, 20);
+        Managers.Tick.scheduleLater(this::fireCommand, 10);
     }
 
     @Override
     public void onDisconnected() {
-        pageRankings.clear(); // technically redundant
         this.setState(ScraperState.READY);
     }
 }
