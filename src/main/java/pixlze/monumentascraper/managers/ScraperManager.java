@@ -66,7 +66,7 @@ public class ScraperManager extends Manager {
             configObject = new JsonObject();
             JsonArray array = new JsonArray();
             JsonObject base = new JsonObject();
-            base.addProperty("leaderboardName", "Zenith Clears");
+            base.addProperty("leaderboardName", "Celestial Zenith");
             base.addProperty("leaderboardId", "Zenith");
             base.addProperty("pages", 5);
             array.add(base);

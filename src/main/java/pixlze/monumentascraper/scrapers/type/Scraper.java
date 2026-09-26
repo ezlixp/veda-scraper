@@ -29,7 +29,9 @@ public abstract class Scraper {
     public abstract void fetchData();
 
     public void postData(JsonObject data) {
-        if (this.state == ScraperState.DONE) return;
+        if (this.state == ScraperState.DONE)
+            return;
+
         setState(ScraperState.DONE);
         ScraperEvents.DONE.invoker().scraperDone(category, data);
     }
