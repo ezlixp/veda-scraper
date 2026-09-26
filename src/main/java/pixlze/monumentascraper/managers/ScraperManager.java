@@ -22,7 +22,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScraperManager extends Manager {
+public class ScraperManager implements Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
     private static final File DATA_DIR = MonumentaScraper.getStorageDirectory("data");
 
@@ -37,7 +37,6 @@ public class ScraperManager extends Manager {
     private final JsonObject dataObject;
 
     public ScraperManager() {
-        super(List.of());
         dataFile = new File(DATA_DIR, "data.json");
         configFile = new File(CONFIG_DIR, "config.json");
         dataObject = new JsonObject();
@@ -113,7 +112,7 @@ public class ScraperManager extends Manager {
             return;
         }
         currentScraper = scrapers.remove(scrapers.size() - 1);
-        Managers.Tick.scheduleLater(() -> initializeScraper(currentScraper), 7);
+        Managers.Tick.scheduleLater(() -> initializeScraper(currentScraper), 2);
     }
 
     private void initializeScraper(Scraper scraper) {
@@ -125,6 +124,7 @@ public class ScraperManager extends Manager {
         JsonArray array = this.dataObject.getAsJsonArray(title);
         if (array == null) {array = new JsonArray();}
         array.add(data);
+        this.dataObject.add(title, array);
         if (uncompletedScrapers == 0) {
             saveFile();
         } else {
