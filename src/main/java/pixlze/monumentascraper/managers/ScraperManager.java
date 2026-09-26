@@ -1,25 +1,26 @@
 package pixlze.monumentascraper.managers;
 
-import java.io.File;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.text.Text;
 import pixlze.monumentascraper.MonumentaScraper;
+import pixlze.monumentascraper.config.type.ConfigLoad;
 import pixlze.monumentascraper.managers.type.Manager;
 import pixlze.monumentascraper.mc.event.MonumentaChatMessage;
+import pixlze.monumentascraper.scrapers.LeaderboardNameScraper;
 import pixlze.monumentascraper.scrapers.LeaderboardScraper;
 import pixlze.monumentascraper.scrapers.event.ScraperEvents;
 import pixlze.monumentascraper.scrapers.type.Scraper;
+
+import java.io.File;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScraperManager extends Manager {
     private static final File CONFIG_DIR = MonumentaScraper.getStorageDirectory("config");
@@ -34,15 +35,12 @@ public class ScraperManager extends Manager {
     private final File dataFile;
     private final File configFile;
     private final JsonObject dataObject;
-    private final JsonArray snapshots;
 
     public ScraperManager() {
         super(List.of());
         dataFile = new File(DATA_DIR, "data.json");
         configFile = new File(CONFIG_DIR, "config.json");
         dataObject = new JsonObject();
-        snapshots = new JsonArray();
-        dataObject.add("snapshots", snapshots);
     }
 
     @Override
@@ -52,32 +50,51 @@ public class ScraperManager extends Manager {
         ClientPlayConnectionEvents.DISCONNECT.register(this::onDisconnected);
         MonumentaChatMessage.EVENT.register(this::onChatMessageReceived);
 
-        JsonArray configObject;
+        JsonObject configObject;
         try {
-            // configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonArray();
-            HttpResponse<String> res = Managers.Api.get("leaderboards").get();
-            JsonObject body = Managers.Json.toJsonObject(res.body());
-            configObject = body.get("leaderboards").getAsJsonArray();
-            MonumentaScraper.LOGGER.info("{}", configObject);
+            if (MonumentaScraper.CONFIG.getConfigLoad() == ConfigLoad.API) {
+                HttpResponse<String> res = Managers.Api.get("leaderboards").get();
+                JsonObject body = Managers.Json.toJsonObject(res.body());
+                configObject = body;
+                MonumentaScraper.LOGGER.info("{}", configObject);
+            } else if (MonumentaScraper.CONFIG.getConfigLoad() == ConfigLoad.FILE) {
+                configObject = Managers.Json.loadJsonFromFile(configFile).getAsJsonObject();
+            } else {
+                throw new Exception("unsupported config type");
+            }
         } catch (Exception e) {
-            configObject = new JsonArray();
+            configObject = new JsonObject();
+            JsonArray array = new JsonArray();
             JsonObject base = new JsonObject();
             base.addProperty("leaderboardName", "Zenith Clears");
             base.addProperty("leaderboardId", "Zenith");
             base.addProperty("pages", 5);
-            configObject.add(base);
+            array.add(base);
+            configObject.add("leaderboards", array);
         }
         Managers.Json.saveJsonAsFile(configFile, configObject);
-        for (JsonElement scraper : configObject.asList()) {
-            try {
-                JsonObject scraperObject = scraper.getAsJsonObject();
-                registerScraper(new LeaderboardScraper(scraperObject.get("leaderboardName")
-                        .getAsString(), scraperObject.get("leaderboardId").getAsString(),
-                        25));
-            } catch (Exception e) {
-                MonumentaScraper.LOGGER.warn("skipping malformed scraper {} for reason {}", scraper, e.getMessage());
+        try {
+            for (JsonElement scraper : configObject.get("leaderboards").getAsJsonArray().asList()) {
+                try {
+                    JsonObject scraperObject = scraper.getAsJsonObject();
+                    registerScraper(new LeaderboardScraper(scraperObject.get("leaderboardName")
+                            .getAsString(), scraperObject.get("leaderboardId").getAsString(),
+                            25));
+                } catch (Exception e) {
+                    MonumentaScraper.LOGGER.warn("skipping malformed scraper {} for reason {}", scraper, e.getMessage());
+                }
             }
-        }
+        } catch (Exception e) {MonumentaScraper.LOGGER.warn("did not configure properly for leaderboards", e);}
+        try {
+            for (JsonElement scraper : configObject.get("leaderboardIds").getAsJsonArray().asList()) {
+                try {
+                    registerScraper(new LeaderboardNameScraper(scraper.getAsString()));
+                } catch (Exception e) {
+                    MonumentaScraper.LOGGER.warn("skipping malformed id scraper {} for reason {}", scraper, e.getMessage());
+                }
+            }
+        } catch (Exception e) {MonumentaScraper.LOGGER.warn("did not configure properly for leaderboard names", e);}
+
 
     }
 
@@ -96,7 +113,7 @@ public class ScraperManager extends Manager {
             return;
         }
         currentScraper = scrapers.remove(scrapers.size() - 1);
-        initializeScraper(currentScraper);
+        Managers.Tick.scheduleLater(() -> initializeScraper(currentScraper), 7);
     }
 
     private void initializeScraper(Scraper scraper) {
@@ -105,9 +122,9 @@ public class ScraperManager extends Manager {
 
     private void writeData(String title, JsonObject data) {
         --uncompletedScrapers;
-        // title should be snapshots for things added to snapshots json array, which is
-        // everything right now
-        snapshots.add(data);
+        JsonArray array = this.dataObject.getAsJsonArray(title);
+        if (array == null) {array = new JsonArray();}
+        array.add(data);
         if (uncompletedScrapers == 0) {
             saveFile();
         } else {
